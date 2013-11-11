@@ -23,8 +23,7 @@ TemperatureQuery.prototype.process = function(tweet) {
 
 	this._findBrewId(brewName, function(error, brewId) {
 		if(error) {
-			LOG.error("TemperatureQuery", "Could not find brew for name", brewId);
-			LOG.dir(error);
+			LOG.error("TemperatureQuery", "Could not find brew for name", brewName, error.message);
 
 			this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
 
@@ -33,9 +32,7 @@ TemperatureQuery.prototype.process = function(tweet) {
 
 		this._checkTemperature(brewId, function(error, temperature) {
 			if(error) {
-				LOG.error("TemperatureQuery", "Could not read temperature!");
-				LOG.dir(error);
-
+				LOG.error("TemperatureQuery", "Could not read temperature of brew is", brewId, error.message);
 			}
 
 			if(error || !temperature || isNaN(temperature)) {
