@@ -36,6 +36,9 @@ TemperatureQuery.prototype.process = function(tweet) {
 				LOG.error("TemperatureQuery", "Could not read temperature!");
 				LOG.dir(error);
 
+			}
+
+			if(error || !temperature || isNaN(temperature)) {
 				this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
 
 				return;
@@ -58,6 +61,8 @@ TemperatureQuery.prototype._reply = function(tweet, message) {
 
 TemperatureQuery.prototype._findBrewId = function(name, callback) {
 	this._seaport.get(this._config.get("statto:name") + "@" + this._config.get("statto:version"), function(services) {
+		LOG.info("TemperatureQuery", "Trying to find brew id from", "http://" + services[0].host + ":" + services[0].port + "/brews?name=" + encodeURIComponent(name));
+
 		restify.createJsonClient({
 			url: "http://" + services[0].host + ":" + services[0].port
 		}).get("/brews?name=" + encodeURIComponent(name), function(error, request, response, object) {
