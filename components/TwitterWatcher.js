@@ -8,19 +8,28 @@ var TwitterWatcher = function() {
 
 TwitterWatcher.prototype.afterPropertiesSet = function() {
 	this._twitter.stream("user", function(stream) {
-		LOG.info("Connected to Twitter stream");
+		LOG.info("TwitterWatcher", "Connected to Twitter stream");
 
 		stream.on("data", function(tweet) {
+			LOG.info("TwitterWatcher", "Incoming data");
 
 			if(!tweet.text || !tweet.user) {
+				LOG.info("TwitterWatcher", "Doesn't look like a tweet");
+
 				return;
 			}
 
+			LOG.info("TwitterWatcher", "Processing", tweet.text);
+
 			for(var n = 0; n < this._matchers.length; n++) {
 				if(this._matchers[n].process(tweet)) {
-					break;
+					LOG.info("TwitterWatcher", "Success!");
+
+					return;
 				}
 			}
+
+			LOG.info("TwitterWatcher", "Failure!");
 		}.bind(this));
 	}.bind(this));
 };
