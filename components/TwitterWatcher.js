@@ -20,6 +20,7 @@ TwitterWatcher.prototype.afterPropertiesSet = function() {
 			}
 
 			LOG.info("TwitterWatcher", "Processing", tweet.text);
+			LOG.info("TwitterWatcher", tweet);
 
 			this._matchers.forEach(function(matcher) {
 				matcher.process(tweet);

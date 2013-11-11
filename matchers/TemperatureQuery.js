@@ -47,7 +47,7 @@ TemperatureQuery.prototype.process = function(tweet) {
 };
 
 TemperatureQuery.prototype._reply = function(tweet, message) {
-	LOG.info("TemperatureQuery", "Replying to ", tweet.id, "with", message);
+	LOG.info("TemperatureQuery", "Replying to", tweet.id, "with", message);
 
 	this._twitter.updateStatus(message, {
 		in_reply_to_status_id: tweet.id
