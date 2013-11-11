@@ -9,7 +9,7 @@ var TemperatureQuery = function() {
 };
 
 TemperatureQuery.prototype.process = function(tweet) {
-	var match = tweet.text.toLowerCase().match(/(@evelinabrewshed)\s(.*)\stemp(erature)?/);
+	var match = tweet.text.toLowerCase().match(/^(@evelinabrewshed)\s(.*)\stemp(erature)?$/);
 
 	if(!match) {
 		LOG.info("TemperatureQuery", "Did not match", tweet.text);
