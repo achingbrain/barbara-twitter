@@ -1,5 +1,5 @@
 var Autowire = require("wantsit").Autowire,
-	fs = require('fs');
+	LOG = require("winston");
 
 var TwitterWatcher = function() {
 	this._matchers = Autowire;
@@ -8,6 +8,8 @@ var TwitterWatcher = function() {
 
 TwitterWatcher.prototype.afterPropertiesSet = function() {
 	this._twitter.stream("user", function(stream) {
+		LOG.info("Connected to Twitter stream");
+
 		stream.on("data", function(tweet) {
 
 			if(!tweet.text || !tweet.user) {

@@ -12,7 +12,6 @@ var container = new Container();
 container.register("config", config);
 
 container.createAndRegister("twitter", Twitter, config.get("twitter"));
-container.createAndRegister("brewFinder", require("./components/BrewFinder"));
 
 container.register("matchers", [
 	container.createAndRegister("temperatureQuery", require("./matchers/TemperatureQuery"))
