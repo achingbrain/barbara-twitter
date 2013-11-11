@@ -43,6 +43,8 @@ TemperatureQuery.prototype.process = function(tweet) {
 };
 
 TemperatureQuery.prototype._reply = function(tweet, message) {
+	LOG.info("TemperatureQuery", "Replying to ", tweet.id, "with", message);
+
 	this._twitter.updateStatus(message, {
 		in_reply_to_status_id: tweet.id
 	}, function(result) {
@@ -55,7 +57,7 @@ TemperatureQuery.prototype._findBrewId = function(name, callback) {
 		restify.createJsonClient({
 			url: "http://" + services[0].host + ":" + services[0].port
 		}).get("/brews?name=" + encodeURIComponent(name), function(error, request, response, object) {
-			callback(error, object.id);
+			callback(error, object ? object.id : null);
 		}.bind(this));
 	});
 }
