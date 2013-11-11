@@ -21,15 +21,9 @@ TwitterWatcher.prototype.afterPropertiesSet = function() {
 
 			LOG.info("TwitterWatcher", "Processing", tweet.text);
 
-			for(var n = 0; n < this._matchers.length; n++) {
-				if(this._matchers[n].process(tweet)) {
-					LOG.info("TwitterWatcher", "Success!");
-
-					return;
-				}
-			}
-
-			LOG.info("TwitterWatcher", "Failure!");
+			this._matchers.forEach(function(matcher) {
+				matcher.process(tweet);
+			})
 		}.bind(this));
 	}.bind(this));
 };

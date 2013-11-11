@@ -12,10 +12,14 @@ TemperatureQuery.prototype.process = function(tweet) {
 	var match = tweet.text.toLowerCase().match(/(@evelinabrewshed)\s(.*)\stemp(erature)?/);
 
 	if(!match) {
+		LOG.info("TemperatureQuery", "Did not match", tweet.text);
+
 		return false;
 	}
 
 	var brewName = match[2].trim();
+
+	LOG.info("TemperatureQuery", "Searching for", brewName);
 
 	this._findBrewId(brewName, function(error, brewId) {
 		if(error) {
