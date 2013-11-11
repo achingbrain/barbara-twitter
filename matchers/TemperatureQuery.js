@@ -18,14 +18,36 @@ TemperatureQuery.prototype.process = function(tweet) {
 	var brewName = match[2].trim();
 
 	this._findBrewId(brewName, function(error, brewId) {
+		if(error) {
+			LOG.error("TemperatureQuery", "Could not find brew for name", brewId);
+			LOG.dir(error);
+
+			this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
+
+			return;
+		}
+
 		this._checkTemperature(brewId, function(error, temperature) {
-			this._twitter.updateStatus("@" + tweet.user.screen_name + " " + brewName + " is " + temperature + "°C", {
-				in_reply_to_status_id: tweet.id
-			}, function(result) {
-				LOG.info("Posted", result);
-			});
+			if(error) {
+				LOG.error("TemperatureQuery", "Could not read temperature!");
+				LOG.dir(error);
+
+				this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
+
+				return;
+			}
+
+			this._reply(tweet, "@" + tweet.user.screen_name + " " + brewName + " is " + temperature + "°C");
 		}.bind(this));
 	}.bind(this));
+};
+
+TemperatureQuery.prototype._reply = function(tweet, message) {
+	this._twitter.updateStatus(message, {
+		in_reply_to_status_id: tweet.id
+	}, function(result) {
+		LOG.info("Posted", result);
+	});
 };
 
 TemperatureQuery.prototype._findBrewId = function(name, callback) {
