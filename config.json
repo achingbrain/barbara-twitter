@@ -1,0 +1,26 @@
+{
+	"registry": {
+		"name": "barbara",
+		"service": "barbara-registry-rest",
+		"version": "1.0.0"
+	},
+	"temperature": {
+		"name": "barbara-temperature-rest",
+		"version": "1.0.0"
+	},
+	"heater": {
+		"name": "barbara-heater-rest",
+		"version": "1.0.0"
+	},
+	"statto": {
+		"name": "barbara-statto-rest",
+		"version": "1.0.0"
+	},
+	"twitter": {
+		"consumer_key": "STATE YOUR NAME",
+		"consumer_secret": "STATE YOUR NAME",
+		"access_token_key": "STATE YOUR NAME",
+		"access_token_secret": "STATE YOUR NAME"
+	},
+	"checkFrequency": 60000
+}
