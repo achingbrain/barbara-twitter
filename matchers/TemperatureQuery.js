@@ -46,11 +46,18 @@ TemperatureQuery.prototype.process = function(tweet) {
 	}.bind(this));
 };
 
-TemperatureQuery.prototype._reply = function(tweet, message) {
-	LOG.info("TemperatureQuery", "Replying to", tweet.id, "with", message);
+TemperatureQuery.prototype._pad = function(number) {
+	return ("0" + number).slice(-2)
+}
 
-	this._twitter.updateStatus(message, {
-		in_reply_to_status_id: tweet.id
+TemperatureQuery.prototype._reply = function(tweet, message) {
+	var now = new Date();
+	var timestamp = "\r\n\r\n" + now.getFullYear() + "-" + this._pad(now.getMonth() + 1) + "-" + this._pad(now.getDate()) + " " + this._pad(now.getHours()) + ":" + this._pad(now.getMinutes()) + ":" + this._pad(now.getSeconds());
+
+	LOG.info("TemperatureQuery", "Replying to", tweet.id_str, "with", message + timestamp);
+
+	this._twitter.updateStatus(message + timestamp, {
+		in_reply_to_status_id: tweet.id_str
 	}, function(result) {
 		LOG.info("Posted", result);
 	});
