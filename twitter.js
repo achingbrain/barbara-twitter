@@ -3,10 +3,11 @@ var LOG = require("winston"),
 	config = require("nconf"),
 	Container = require("wantsit").Container,
 	bonvoyage = require("bonvoyage"),
-	Twitter = require("twitter");
+	Twitter = require("twitter"),
+	path = require("path");
 
 // set up arguments
-config.argv().env().file("config.json");
+config.argv().env().file(path.resolve(__dirname, "config.json"));
 
 var container = new Container();
 container.register("config", config);
@@ -14,10 +15,10 @@ container.register("config", config);
 container.createAndRegister("twitter", Twitter, config.get("twitter"));
 
 container.register("matchers", [
-	container.createAndRegister("temperatureQuery", require("./matchers/TemperatureQuery"))
+	container.createAndRegister("temperatureQuery", require(path.resolve(__dirname, "./matchers/TemperatureQuery")))
 ]);
 
-container.createAndRegister("twitterWatcher", require("./components/TwitterWatcher"));
+container.createAndRegister("twitterWatcher", require(path.resolve(__dirname, "./components/TwitterWatcher")));
 
 // inject a dummy seaport - we'll overwrite this when the real one becomes available
 container.register("seaport", {
