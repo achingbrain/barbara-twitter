@@ -1,20 +1,24 @@
 var Autowire = require("wantsit").Autowire
 	LOG = require("winston"),
-	restify = require("restify");
+	restify = require("restify"),
+	AbstractMatcher = require("./AbstractMatcher"),
+	util = require("util");
 
 var TemperatureQuery = function() {
+	AbstractMatcher.call(this);
+
 	this._config = Autowire;
 	this._seaport = Autowire;
-	this._twitter = Autowire;
 };
+util.inherits(TemperatureQuery, AbstractMatcher);
 
-TemperatureQuery.prototype.process = function(tweet) {
+TemperatureQuery.prototype.process = function(tweet, next) {
 	var match = tweet.text.toLowerCase().match(/^(@evelinabrewshed)\s(.*)\stemp(erature)?$/);
 
 	if(!match) {
 		LOG.info("TemperatureQuery", "Did not match", tweet.text);
 
-		return false;
+		return next();
 	}
 
 	var brewName = match[2].trim();
@@ -25,9 +29,7 @@ TemperatureQuery.prototype.process = function(tweet) {
 		if(error) {
 			LOG.error("TemperatureQuery", "Could not find brew for name", brewName, error.message);
 
-			this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
-
-			return;
+			return next();
 		}
 
 		this._checkTemperature(brewId, function(error, temperature) {
@@ -36,24 +38,12 @@ TemperatureQuery.prototype.process = function(tweet) {
 			}
 
 			if(error || !temperature || isNaN(temperature)) {
-				this._reply(tweet, "I'm sorry @" + tweet.user.screen_name + ", I'm afraid I can't do that.");
-
-				return;
+				return next();
 			}
 
 			this._reply(tweet, "@" + tweet.user.screen_name + " " + brewName + " is " + temperature + "°C");
 		}.bind(this));
 	}.bind(this));
-};
-
-TemperatureQuery.prototype._reply = function(tweet, message) {
-	LOG.info("TemperatureQuery", "Replying to", tweet.id_str, "with", message);
-
-	this._twitter.updateStatus(message + "\r\n\r\n" + (new Date()).getTime(), {
-		in_reply_to_status_id: tweet.id_str
-	}, function(result) {
-		LOG.info("Posted", result);
-	});
 };
 
 TemperatureQuery.prototype._findBrewId = function(name, callback) {

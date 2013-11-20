@@ -16,6 +16,14 @@
 		"name": "barbara-statto-rest",
 		"version": "1.0.0"
 	},
+	"pm2-rpc": {
+		"name": "barbara-pm2-rpc",
+		"version": "1.0.0"
+	},
+	"pm2-events": {
+		"name": "barbara-pm2-events",
+		"version": "1.0.0"
+	},
 	"twitter": {
 		"consumer_key": "STATE YOUR NAME",
 		"consumer_secret": "STATE YOUR NAME",

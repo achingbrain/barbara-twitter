@@ -22,9 +22,20 @@ TwitterWatcher.prototype.afterPropertiesSet = function() {
 			LOG.info("TwitterWatcher", "Processing", tweet.text);
 			LOG.info("TwitterWatcher", tweet);
 
-			this._matchers.forEach(function(matcher) {
-				matcher.process(tweet);
-			})
+			var i = -1;
+
+			var next = function() {
+				i++;
+
+				if(!this._matchers[i]) {
+					LOG.warn("TwitterWatcher", "No more matchers for tweet with message", tweet.text);
+
+					return;
+				}
+
+				this._matchers[i].process(tweet, next);
+			}.bind(this);
+			next();
 		}.bind(this));
 	}.bind(this));
 };

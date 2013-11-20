@@ -5,7 +5,7 @@
 	"description": "Tweets",
 	"main": "heater.js",
 	"scripts": {
-		"test": "istanbul cover nodeunit test"
+		"test": "istanbul cover nodeunit test/components test/matchers"
 	},
 	"repository": {
 		"type": "git",
@@ -18,12 +18,12 @@
 		"nconf": "~0.6",
 		"wantsit": "~1.0",
 		"twitter": "~0.2",
-		"restify": "~2.6"
+		"restify": "~2.6",
+		"pm2-interface": "~0.0"
 	},
 	"devDependencies": {
 		"nodeunit": "~0.8",
-		"jsmockito": "~1.0",
-		"jshamcrest": "~0.7",
-		"istanbul": "~0.1"
+		"istanbul": "~0.1",
+		"sinon": "~1.7"
 	}
 }

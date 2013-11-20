@@ -19,6 +19,7 @@ container.register("matchers", [
 ]);
 
 container.createAndRegister("twitterWatcher", require(path.resolve(__dirname, "./components/TwitterWatcher")));
+container.createAndRegister("pm2EventWatcher", require(path.resolve(__dirname, "./components/PM2EventWatcher"));
 
 // inject a dummy seaport - we'll overwrite this when the real one becomes available
 container.register("seaport", {
@@ -27,18 +28,9 @@ container.register("seaport", {
 	}
 });
 
-var bonvoyageClient = new bonvoyage.Client({
+container.createAndRegister("bonvoyageClient", bonvoyage.Client, {
 	serviceType: config.get("registry:name")
 });
-bonvoyageClient.find(function(error, seaport) {
-	if(error) {
-		LOG.error("Error finding seaport", error);
-
-		return;
-	}
-
-	LOG.info("Found seaport server");
-});
-bonvoyageClient.on("seaportUp", function(seaport) {
+container.find("bonvoyageClient").on("seaportUp", function(seaport) {
 	container.register("seaport", seaport);
 });
