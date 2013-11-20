@@ -19,7 +19,7 @@ container.register("matchers", [
 ]);
 
 container.createAndRegister("twitterWatcher", require(path.resolve(__dirname, "./components/TwitterWatcher")));
-container.createAndRegister("pm2EventWatcher", require(path.resolve(__dirname, "./components/PM2EventWatcher"));
+container.createAndRegister("pm2EventWatcher", require(path.resolve(__dirname, "./components/PM2EventWatcher")));
 
 // inject a dummy seaport - we'll overwrite this when the real one becomes available
 container.register("seaport", {
