@@ -1,134 +1,139 @@
-var LOG = require("winston"),
-	TwitterWatcher = require("../../components/TwitterWatcher"),
-	Twitter = require("twitter"),
-	EventEmitter = require("events").EventEmitter,
-	sinon = require("sinon");
+var TwitterWatcher = require('../../lib/components/TwitterWatcher'),
+  EventEmitter = require('events').EventEmitter,
+  sinon = require('sinon'),
+  expect = require('chai').expect
 
-var twitterWatcher;
-var matchers;
-var twitter;
+describe('TwitterWatcher', function() {
+  var twitterWatcher
 
-module.exports["TwitterWatcher"] = {
-	setUp: function(done) {
-		var actualTwitter = new Twitter();
-		twitter = sinon.mock(actualTwitter);
-		matchers = [];
+  beforeEach(function() {
+    twitterWatcher = new TwitterWatcher()
+    twitterWatcher._logger = {
+      info: sinon.stub(),
+      warn: sinon.stub(),
+      error: sinon.stub(),
+      debug: sinon.stub()
+    }
+    twitterWatcher._twitter = {
+      stream: sinon.stub()
+    }
+    twitterWatcher._matchers = []
+  })
 
-		twitterWatcher = new TwitterWatcher();
-		twitterWatcher._twitter = actualTwitter;
-		twitterWatcher._matchers = matchers;
+  it('should respond to a tweet', function(done) {
+    var stream = new EventEmitter();
+    var tweet = {
+      text: 'foo',
+      user: 'bar'
+    }
 
-		done();
-	},
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        expect(passedTweet).to.deep.equal(tweet)
+        expect(next).to.be.ok
 
-	"Should respond to a tweet": function(test) {
-		var stream = new EventEmitter();
-		var tweet = {
-			text: "foo",
-			user: "bar"
-		};
+        done()
+      }
+    })
 
-		matchers.push({
-			process: function(passedTweet, next) {
-				test.deepEqual(passedTweet, tweet);
-				test.ok(next);
+    twitterWatcher.afterPropertiesSet()
 
-				test.done();
-			}
-		});
+    var stream = new EventEmitter()
 
-		twitter.expects("stream").once().callsArgWith(1, stream);
+    var cb = twitterWatcher._twitter.stream.withArgs('user', sinon.match.func).getCall(0).args[1]
+    cb(stream)
 
-		twitterWatcher.afterPropertiesSet();
+    stream.emit('data', tweet)
+  })
 
-		stream.emit("data", tweet);
-	},
+  it('should try multiple tweet matchers', function(done) {
+    var tweet = {
+      text: 'foo',
+      user: 'bar'
+    }
 
-	"Should try multiple tweet matchers": function(test) {
-		var stream = new EventEmitter();
-		var tweet = {
-			text: "foo",
-			user: "bar"
-		};
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        next()
+      }
+    })
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        expect(passedTweet).to.deep.equal(tweet)
+        expect(next).to.be.ok
 
-		matchers.push({
-			process: function(passedTweet, next) {
-				next();
-			}
-		});
-		matchers.push({
-			process: function(passedTweet, next) {
-				test.equal(passedTweet, tweet);
-				test.ok(next);
+        done()
+      }
+    })
 
-				test.done();
-			}
-		});
+    twitterWatcher.afterPropertiesSet();
 
-		twitter.expects("stream").once().callsArgWith(1, stream);
+    var stream = new EventEmitter()
 
-		twitterWatcher.afterPropertiesSet();
+    var cb = twitterWatcher._twitter.stream.withArgs('user', sinon.match.func).getCall(0).args[1]
+    cb(stream)
 
-		stream.emit("data", tweet);
-	},
+    stream.emit('data', tweet)
+  })
 
-	"Should not match invalid tweet": function(test) {
-		var stream = new EventEmitter();
-		var tweet = {};
+  it('should not match invalid tweet', function() {
+    var tweet = {}
 
-		matchers.push({
-			process: function() {
-				test.fail("Should not have processed invalid tweet");
-			}
-		});
+    twitterWatcher._matchers.push({
+      process: function() {
+        throw new Error('Should not have processed invalid tweet')
+      }
+    })
 
-		twitter.expects("stream").once().callsArgWith(1, stream);
+    twitterWatcher.afterPropertiesSet();
 
-		twitterWatcher.afterPropertiesSet();
+    var stream = new EventEmitter()
 
-		stream.emit("data", tweet);
+    var cb = twitterWatcher._twitter.stream.withArgs('user', sinon.match.func).getCall(0).args[1]
+    cb(stream)
 
-		test.done();
-	},
+    stream.emit('data', tweet)
+  })
 
-	"Should try all multiple tweet": function(test) {
-		var stream = new EventEmitter();
-		var tweet = {
-			text: "foo",
-			user: "bar"
-		};
+  it('should try all multiple tweet', function() {
+    var tweet = {
+      text: 'foo',
+      user: 'bar'
+    }
 
-		var invoked = 0;
+    var invoked = 0;
 
-		matchers.push({
-			process: function(passedTweet, next) {
-				invoked++;
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        invoked++
 
-				next();
-			}
-		});
-		matchers.push({
-			process: function(passedTweet, next) {
-				invoked++;
+        next()
+      }
+    })
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        invoked++
 
-				next();
-			}
-		});
-		matchers.push({
-			process: function(passedTweet, next) {
-				invoked++;
+        next()
+      }
+    })
+    twitterWatcher._matchers.push({
+      process: function(passedTweet, next) {
+        invoked++
 
-				next();
-			}
-		});
+        next()
+      }
+    })
 
-		twitter.expects("stream").once().callsArgWith(1, stream);
+    twitterWatcher.afterPropertiesSet();
 
-		twitterWatcher.afterPropertiesSet();
+    var stream = new EventEmitter()
 
-		stream.emit("data", tweet);
+    var cb = twitterWatcher._twitter.stream.withArgs('user', sinon.match.func).getCall(0).args[1]
+    cb(stream)
 
-		test.equal(invoked, 3);
-		test.done();
-	}
-};
+    stream.emit('data', tweet)
+
+    expect(invoked).to.equal(3)
+  })
+})

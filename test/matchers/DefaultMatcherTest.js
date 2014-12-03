@@ -1,37 +1,34 @@
-var LOG = require("winston"),
-	DefaultMatcher = require("../../matchers/DefaultMatcher"),
-	Twitter = require("twitter"),
-	sinon = require("sinon");
+var DefaultMatcher = require('../../lib/matchers/DefaultMatcher'),
+  sinon = require('sinon'),
+  expect = require('chai').expect
 
-var defaultMatcher;
-var twitter;
+describe('DefaultMatcher', function() {
+  var matcher
 
-module.exports["DefaultMatcher"] = {
-	setUp: function(done) {
-		var actualTwitter = new Twitter();
-		twitter = sinon.mock(actualTwitter);
+  beforeEach(function() {
+    matcher = new DefaultMatcher()
+    matcher._logger = {
+      info: sinon.stub(),
+      warn: sinon.stub(),
+      error: sinon.stub(),
+      debug: sinon.stub()
+    }
+    matcher._twitter = {
+      updateStatus: sinon.stub()
+    }
+  })
 
-		defaultMatcher = new DefaultMatcher();
-		defaultMatcher._twitter = actualTwitter;
+  it('should reply with default message', function() {
+    var tweet = {
+      id_str: 'id_str',
+      text: 'foo',
+      user: {
+        screen_name: 'sender'
+      }
+    }
 
-		done();
-	},
+    matcher.process(tweet)
 
-	"Should reply with default message": function(test) {
-		var tweet = {
-			id_str: "id_str",
-			text: "foo",
-			user: {
-				screen_name: "sender"
-			}
-		};
-
-		twitter.expects("updateStatus").once().withArgs(sinon.match.string, sinon.match.object, sinon.match.func);
-
-		defaultMatcher.process(tweet);
-
-		twitter.verify();
-
-		test.done();
-	}
-};
+    expect(matcher._twitter.updateStatus.withArgs(sinon.match.string, sinon.match.object, sinon.match.func).callCount).to.equal(1)
+  })
+})
